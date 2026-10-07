@@ -33,7 +33,7 @@ Higher-level APIs to support building EMR functionality in OpenMRS, to supplemen
 * Creates metadata source, metadata mappings, and metadata sets that are required for the configuration
 * Creates an "Unknown Provider" provider if it does not exist
 * Sets default visit assignment handler via global property
-* Sets up the patient viewed event listener subscription
+* Gives the patient viewed event listener the daemon token it updates the last viewed patients with
 * Ensures the person image folder exists
 
 # REST API
@@ -177,7 +177,7 @@ The configuration needed to set this up would be to map 2 concepts as follows:
 
 ## event
 
-* Basic interface and implementation for publishing events with the event module whenever a user views a patient
+* Basic interface and implementation for publishing a PatientViewedEvent through core's EventPublisher whenever a user views a patient
 * Event listener on patient view events to track in the user's property of emrapi.lastViewedPatientIds
 
 ## exitfromcare

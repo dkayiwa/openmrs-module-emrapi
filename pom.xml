@@ -41,6 +41,7 @@
         <openmrsPlatformVersion>3.0.0-SNAPSHOT</openmrsPlatformVersion>
         <maven.compiler.release>21</maven.compiler.release>
         <maven.compiler.parameters>true</maven.compiler.parameters>
+        <maven.compiler.proc>full</maven.compiler.proc>
         <legacyuiVersion>3.0.0-SNAPSHOT</legacyuiVersion>
         <lombokVersion>1.18.38</lombokVersion>
         <openmrsTestutilsVersion>1.8.0-SNAPSHOT</openmrsTestutilsVersion>
