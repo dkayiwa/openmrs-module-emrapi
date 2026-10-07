@@ -44,7 +44,7 @@
         <maven.compiler.proc>full</maven.compiler.proc>
         <legacyuiVersion>3.0.0-SNAPSHOT</legacyuiVersion>
         <lombokVersion>1.18.38</lombokVersion>
-        <openmrsTestutilsVersion>1.8.0-SNAPSHOT</openmrsTestutilsVersion>
+        <openmrsTestutilsVersion>1.8.0</openmrsTestutilsVersion>
         <metadatamappingVersion>3.0.0-SNAPSHOT</metadatamappingVersion>
         <metadatasharingVersion>1.9.0</metadatasharingVersion>
         <allergyapiVersion>1.4</allergyapiVersion>
