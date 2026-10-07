@@ -9,7 +9,6 @@
  */
 package org.openmrs.module.emrapi.patient;
 
-import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
@@ -18,8 +17,6 @@ import java.util.Collection;
 import java.util.List;
 
 public interface EmrPatientDAO {
-	
-	List<Patient> findPatients(String query, Location checkedInAt, Integer start, Integer length);
 	
 	List<Visit> getVisitsForPatient(Patient patient, Integer startIndex, Integer limit);
 	

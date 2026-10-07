@@ -197,7 +197,7 @@ The configuration needed to set this up would be to map 2 concepts as follows:
 
 * PatientDomainWrapper - convenience methods around Patient and related tables, including primary identifier, telephone number, unknown patient, and test patient 
 * EmrPatientProfileService - allows associating a patient with a PersonImage
-* EmrPatientService - methods to find patients by visit location or primary identifier
+* EmrPatientService - methods to find a patient by primary identifier, and to get a patient's visits and their visit note observations
 * (reporting module) definitions and evaluators for getting patient Primary Identifier
 
 ## person

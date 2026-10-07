@@ -193,7 +193,6 @@
                 </property>
                 <property name="emrApiProperties" ref="emrApiProperties"/>
                 <property name="patientService" ref="patientService"/>
-                <property name="adtService" ref="adtService"/>
             </bean>
         </property>
         <property name="preInterceptors">
