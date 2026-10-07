@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/emrapi/encounter")
+@RequestMapping(value = { "/rest/" + RestConstants.VERSION_1 + "/emrapi/encounter", "/rest/emrapi/encounter" })
 public class EmrEncounterController extends BaseRestController {
 	
 	@Autowired

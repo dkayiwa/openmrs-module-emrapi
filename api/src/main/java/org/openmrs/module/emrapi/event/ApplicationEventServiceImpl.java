@@ -12,20 +12,24 @@ package org.openmrs.module.emrapi.event;
 import org.openmrs.Patient;
 import org.openmrs.User;
 import org.openmrs.api.impl.BaseOpenmrsService;
-import org.openmrs.event.Event;
-import org.openmrs.event.EventMessage;
-import org.openmrs.module.emrapi.EmrApiConstants;
+import org.springframework.context.ApplicationEventPublisher;
 
 public class ApplicationEventServiceImpl extends BaseOpenmrsService implements ApplicationEventService {
+	
+	private ApplicationEventPublisher eventPublisher;
+	
+	/**
+	 * Set to core's {@link org.openmrs.event.EventPublisher} in moduleApplicationContext.xml.
+	 */
+	public void setEventPublisher(ApplicationEventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
 	
 	/**
 	 * @see ApplicationEventService#patientViewed(org.openmrs.Patient, org.openmrs.User)
 	 */
 	@Override
 	public void patientViewed(Patient patient, User user) {
-		EventMessage eventMessage = new EventMessage();
-		eventMessage.put(EmrApiConstants.EVENT_KEY_PATIENT_UUID, patient.getUuid());
-		eventMessage.put(EmrApiConstants.EVENT_KEY_USER_UUID, user.getUuid());
-		Event.fireEvent(EmrApiConstants.EVENT_TOPIC_NAME_PATIENT_VIEWED, eventMessage);
+		eventPublisher.publishEvent(new PatientViewedEvent(patient.getUuid(), user.getUuid()));
 	}
 }

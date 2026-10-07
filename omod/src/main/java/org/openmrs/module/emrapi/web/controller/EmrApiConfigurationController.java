@@ -26,7 +26,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/emrapi/configuration")
+@RequestMapping(value = { "/rest/" + RestConstants.VERSION_1 + "/emrapi/configuration", "/rest/emrapi/configuration" })
 public class EmrApiConfigurationController {
 	
 	@Autowired

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/emrapi")
+@RequestMapping(value = { "/rest/" + RestConstants.VERSION_1 + "/emrapi", "/rest/emrapi" })
 public class DiagnosisController extends BaseRestController {
 	
 	@Autowired

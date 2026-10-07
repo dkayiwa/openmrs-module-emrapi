@@ -59,7 +59,9 @@ public class VisitController extends BaseRestController {
 	 * Custom representation supported includes:
 	 * visit:Visit,diagnoses:List<org.openmrs.Diagnosis>,visitNotes:Obs
 	 */
-	@RequestMapping(method = RequestMethod.GET, value = "/rest/" + RestConstants.VERSION_1 + "/emrapi/patient/{patientUuid}/visit")
+	@RequestMapping(method = RequestMethod.GET, value = {
+	        "/rest/" + RestConstants.VERSION_1 + "/emrapi/patient/{patientUuid}/visit",
+	        "/rest/emrapi/patient/{patientUuid}/visit" })
 	public ResponseEntity<?> getVisitsWithDiagnosesAndNotesByPatient(HttpServletRequest request,
 	        HttpServletResponse response, @PathVariable("patientUuid") String patientUuid) {
 		

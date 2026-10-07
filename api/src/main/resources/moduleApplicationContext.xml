@@ -209,7 +209,9 @@
             <ref bean="transactionManager"/>
         </property>
         <property name="target">
-            <bean class="org.openmrs.module.emrapi.event.ApplicationEventServiceImpl" />
+            <bean class="org.openmrs.module.emrapi.event.ApplicationEventServiceImpl">
+                <property name="eventPublisher" ref="eventPublisher"/>
+            </bean>
         </property>
         <property name="preInterceptors">
             <ref bean="serviceInterceptors"/>

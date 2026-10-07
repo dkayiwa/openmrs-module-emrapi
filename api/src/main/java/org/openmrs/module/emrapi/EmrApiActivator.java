@@ -35,8 +35,6 @@ import org.openmrs.api.PersonService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.UserService;
 import org.openmrs.api.context.Context;
-import org.openmrs.event.Event;
-import org.openmrs.event.EventListener;
 import org.openmrs.module.BaseModuleActivator;
 import org.openmrs.module.DaemonToken;
 import org.openmrs.module.DaemonTokenAware;
@@ -59,8 +57,6 @@ public class EmrApiActivator extends BaseModuleActivator implements DaemonTokenA
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	private EventListener eventListener;
-	
 	private DaemonToken daemonToken;
 	
 	private AdministrationService administrationService;
@@ -78,6 +74,10 @@ public class EmrApiActivator extends BaseModuleActivator implements DaemonTokenA
 	public void contextRefreshed() {
 		super.contextRefreshed(); //To change body of overridden methods use File | Settings | File Templates.
 		ensurePrivilegeLevelRoles();
+		// a refresh creates a new listener bean, and core passes the token just before calling this
+		for (PatientViewedEventListener listener : Context.getRegisteredComponents(PatientViewedEventListener.class)) {
+			listener.setDaemonToken(daemonToken);
+		}
 	}
 	
 	/**
@@ -139,8 +139,6 @@ public class EmrApiActivator extends BaseModuleActivator implements DaemonTokenA
 		
 		administrationService.setGlobalProperty(OpenmrsConstants.GP_VISIT_ASSIGNMENT_HANDLER,
 		    EmrApiVisitAssignmentHandler.class.getName());
-		eventListener = new PatientViewedEventListener(daemonToken);
-		Event.subscribe(EmrApiConstants.EVENT_TOPIC_NAME_PATIENT_VIEWED, eventListener);
 		
 		createPersonImageFolder();
 	}
@@ -373,13 +371,6 @@ public class EmrApiActivator extends BaseModuleActivator implements DaemonTokenA
 			conceptService.saveConceptSource(conceptSource);
 		}
 		return conceptSource;
-	}
-	
-	@Override
-	public void stopped() {
-		if (eventListener != null) {
-			Event.unsubscribe(EmrApiConstants.EVENT_TOPIC_NAME_PATIENT_VIEWED, eventListener);
-		}
 	}
 	
 	@Override

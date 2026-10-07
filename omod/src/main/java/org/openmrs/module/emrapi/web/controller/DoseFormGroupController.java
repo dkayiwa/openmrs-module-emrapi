@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping(value = "/rest/" + RestConstants.VERSION_1 + "/emrapi/doseFormGroups")
+@RequestMapping(value = { "/rest/" + RestConstants.VERSION_1 + "/emrapi/doseFormGroups", "/rest/emrapi/doseFormGroups" })
 public class DoseFormGroupController {
 	
 	/**

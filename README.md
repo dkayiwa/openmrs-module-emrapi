@@ -9,11 +9,10 @@ Higher-level APIs to support building EMR functionality in OpenMRS, to supplemen
 
 ## Required core version
 
-* 2.8.0
+* 3.0.0
 
 ## Required modules
 
-* event
 * metadatamapping
 * webservices.rest
 

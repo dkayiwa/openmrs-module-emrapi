@@ -46,7 +46,6 @@
         <openmrsTestutilsVersion>1.8.0-SNAPSHOT</openmrsTestutilsVersion>
         <metadatamappingVersion>3.0.0-SNAPSHOT</metadatamappingVersion>
         <metadatasharingVersion>1.9.0</metadatasharingVersion>
-        <eventVersion>5.0.0-SNAPSHOT</eventVersion>
         <allergyapiVersion>1.4</allergyapiVersion>
         <webservices.restVersion>5.0.0-SNAPSHOT</webservices.restVersion>
     </properties>
@@ -68,12 +67,6 @@
             <groupId>org.openmrs.module</groupId>
             <artifactId>metadatasharing-api</artifactId>
             <version>${metadatasharingVersion}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openmrs</groupId>
-            <artifactId>event-api</artifactId>
-            <version>${eventVersion}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

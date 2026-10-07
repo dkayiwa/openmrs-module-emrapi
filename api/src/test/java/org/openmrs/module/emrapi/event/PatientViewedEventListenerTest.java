@@ -9,7 +9,6 @@
  */
 package org.openmrs.module.emrapi.event;
 
-import org.apache.activemq.command.ActiveMQMapMessage;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,8 +23,6 @@ import org.openmrs.module.emrapi.utils.GeneralUtils;
 import org.openmrs.test.jupiter.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import jakarta.jms.MapMessage;
-import jakarta.jms.Message;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,7 +41,8 @@ public class PatientViewedEventListenerTest extends BaseModuleContextSensitiveTe
 	
 	private User user;
 	
-	private PatientViewedEventListener listener = new PatientViewedEventListener(null);
+	@Autowired
+	private PatientViewedEventListener listener;
 	
 	@BeforeEach
 	public void setup() {
@@ -57,24 +55,20 @@ public class PatientViewedEventListenerTest extends BaseModuleContextSensitiveTe
 		    StringUtils.join(patientIds, ","));
 	}
 	
-	private MapMessage createMessage(Patient patient, User user) throws Exception {
-		MapMessage message = new ActiveMQMapMessage();
-		message.setString(EmrApiConstants.EVENT_KEY_PATIENT_UUID, patient.getUuid());
-		message.setString(EmrApiConstants.EVENT_KEY_USER_UUID, user.getUuid());
-		
-		return message;
+	private PatientViewedEvent createEvent(Patient patient, User user) {
+		return new PatientViewedEvent(patient.getUuid(), user.getUuid());
 	}
 	
 	/**
 	 * @verifies add the patient to the last viewed user property
-	 * @see PatientViewedEventListener#processMessage(jakarta.jms.Message)
+	 * @see PatientViewedEventListener#processEvent(PatientViewedEvent)
 	 */
 	@Test
-	public void processMessage_shouldAddThePatientToTheLastViewedUserProperty() throws Exception {
+	public void processEvent_shouldAddThePatientToTheLastViewedUserProperty() {
 		setInitialLastViewedPatients(Arrays.asList(2, 6, 7));
 		final Integer lastViewedPatientId = 8;
-		Message message = createMessage(patientService.getPatient(lastViewedPatientId), user);
-		listener.processMessage(message);
+		PatientViewedEvent event = createEvent(patientService.getPatient(lastViewedPatientId), user);
+		listener.processEvent(event);
 		
 		List<Patient> lastViewed = GeneralUtils.getLastViewedPatients(user);
 		assertEquals(lastViewedPatientId, lastViewed.get(0).getId());
@@ -86,10 +80,10 @@ public class PatientViewedEventListenerTest extends BaseModuleContextSensitiveTe
 	
 	/**
 	 * @verifies remove the first patient and add the new one to the start if the list is full
-	 * @see PatientViewedEventListener#processMessage(jakarta.jms.Message)
+	 * @see PatientViewedEventListener#processEvent(PatientViewedEvent)
 	 */
 	@Test
-	public void processMessage_shouldRemoveTheFirstPatientAndAddTheNewOneToTheStartIfTheListIsFull() throws Exception {
+	public void processEvent_shouldRemoveTheFirstPatientAndAddTheNewOneToTheStartIfTheListIsFull() {
 		final Integer newLimit = 3;
 		GlobalProperty gp = new GlobalProperty(EmrApiConstants.GP_LAST_VIEWED_PATIENT_SIZE_LIMIT, newLimit.toString());
 		adminService.saveGlobalProperty(gp);
@@ -97,8 +91,8 @@ public class PatientViewedEventListenerTest extends BaseModuleContextSensitiveTe
 		final Integer patientIdToRemove = 2;
 		setInitialLastViewedPatients(Arrays.asList(patientIdToRemove, 6, 7));
 		final Integer lastSeenPatientId = 8;
-		MapMessage message = createMessage(patientService.getPatient(lastSeenPatientId), user);
-		listener.processMessage(message);
+		PatientViewedEvent event = createEvent(patientService.getPatient(lastSeenPatientId), user);
+		listener.processEvent(event);
 		
 		List<Patient> lastViewed = GeneralUtils.getLastViewedPatients(user);
 		assertEquals(newLimit.intValue(), lastViewed.size());
@@ -109,16 +103,16 @@ public class PatientViewedEventListenerTest extends BaseModuleContextSensitiveTe
 	
 	/**
 	 * @verifies not add a duplicate and should move the existing patient to the start
-	 * @see PatientViewedEventListener#processMessage(jakarta.jms.Message)
+	 * @see PatientViewedEventListener#processEvent(PatientViewedEvent)
 	 */
 	@Test
-	public void processMessage_shouldNotAddADuplicateAndShouldMoveTheExistingPatientToTheStart() throws Exception {
+	public void processEvent_shouldNotAddADuplicateAndShouldMoveTheExistingPatientToTheStart() {
 		final Integer duplicatePatientId = 2;
 		List<Integer> initialPatientIds = Arrays.asList(duplicatePatientId, 6, 7, 8);
 		final int initialSize = initialPatientIds.size();
 		setInitialLastViewedPatients(initialPatientIds);
-		MapMessage message = createMessage(patientService.getPatient(duplicatePatientId), user);
-		listener.processMessage(message);
+		PatientViewedEvent event = createEvent(patientService.getPatient(duplicatePatientId), user);
+		listener.processEvent(event);
 		
 		List<Patient> lastViewed = GeneralUtils.getLastViewedPatients(user);
 		assertEquals(initialSize, lastViewed.size());
@@ -130,18 +124,18 @@ public class PatientViewedEventListenerTest extends BaseModuleContextSensitiveTe
 	
 	/**
 	 * @verifies not remove any patient if a duplicate is added to a full list
-	 * @see PatientViewedEventListener#processMessage(jakarta.jms.Message)
+	 * @see PatientViewedEventListener#processEvent(PatientViewedEvent)
 	 */
 	@Test
-	public void processMessage_shouldNotRemoveAnyPatientIfADuplicateIsAddedToAFullList() throws Exception {
+	public void processEvent_shouldNotRemoveAnyPatientIfADuplicateIsAddedToAFullList() {
 		final Integer newLimit = 4;
 		GlobalProperty gp = new GlobalProperty(EmrApiConstants.GP_LAST_VIEWED_PATIENT_SIZE_LIMIT, newLimit.toString());
 		adminService.saveGlobalProperty(gp);
 		
 		final Integer duplicatePatientId = 2;
 		setInitialLastViewedPatients(Arrays.asList(6, duplicatePatientId, 7, 8));
-		MapMessage message = createMessage(patientService.getPatient(duplicatePatientId), user);
-		listener.processMessage(message);
+		PatientViewedEvent event = createEvent(patientService.getPatient(duplicatePatientId), user);
+		listener.processEvent(event);
 		
 		List<Patient> lastViewed = GeneralUtils.getLastViewedPatients(user);
 		assertEquals(newLimit.intValue(), lastViewed.size());

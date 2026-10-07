@@ -36,7 +36,5 @@
         </property>
         <!--  default properties must be set in the hibernate.default.properties -->
     </bean>
-
-    <bean id="eventDaemonTokenInitializer" class="org.openmrs.module.emrapi.test.EventDaemonTokenInitializer"/>
 </beans>
 

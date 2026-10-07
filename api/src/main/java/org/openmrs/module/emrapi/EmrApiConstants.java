@@ -182,10 +182,13 @@ public class EmrApiConstants {
 	
 	public static final String USER_PROPERTY_NAME_LAST_VIEWED_PATIENT_IDS = "emrapi.lastViewedPatientIds";
 	
+	@Deprecated // nothing is published to this topic any more, listen for event.PatientViewedEvent instead
 	public static final String EVENT_TOPIC_NAME_PATIENT_VIEWED = "org.openmrs.module.emrapi.event.PatientViewed";
 	
+	@Deprecated // see EVENT_TOPIC_NAME_PATIENT_VIEWED
 	public static final String EVENT_KEY_PATIENT_UUID = "patientUuid";
 	
+	@Deprecated // see EVENT_TOPIC_NAME_PATIENT_VIEWED
 	public static final String EVENT_KEY_USER_UUID = "userUuid";
 	
 	public static final String GP_LAST_VIEWED_PATIENT_SIZE_LIMIT = "emrapi.lastViewedPatientSizeLimit";
