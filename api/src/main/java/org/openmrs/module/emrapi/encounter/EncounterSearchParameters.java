@@ -10,9 +10,7 @@
 package org.openmrs.module.emrapi.encounter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.openmrs.module.emrapi.utils.CustomJsonDateDeserializer;
 import org.openmrs.module.emrapi.utils.CustomJsonDateSerializer;
 
 import java.util.ArrayList;
@@ -86,7 +84,6 @@ public class EncounterSearchParameters {
 		return encounterDateTimeFrom;
 	}
 	
-	@JsonDeserialize(using = CustomJsonDateDeserializer.class)
 	public void setEncounterDateTimeFrom(Date encounterDateTimeFrom) {
 		this.encounterDateTimeFrom = encounterDateTimeFrom;
 	}
@@ -96,7 +93,6 @@ public class EncounterSearchParameters {
 		return encounterDateTimeTo;
 	}
 	
-	@JsonDeserialize(using = CustomJsonDateDeserializer.class)
 	public void setEncounterDateTimeTo(Date endDate) {
 		this.encounterDateTimeTo = endDate;
 	}
