@@ -25,7 +25,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class EmrEncounterServiceImpIT extends BaseModuleWebContextSensitiveTest {
+public class EmrEncounterServiceImp_IT extends BaseModuleWebContextSensitiveTest {
 	
 	@Autowired
 	private EmrEncounterService emrEncounterService;
