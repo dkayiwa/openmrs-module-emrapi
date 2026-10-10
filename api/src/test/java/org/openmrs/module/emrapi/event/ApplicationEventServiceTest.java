@@ -9,81 +9,40 @@
  */
 package org.openmrs.module.emrapi.event;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import javax.jms.MapMessage;
-import javax.jms.Message;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.openmrs.Patient;
 import org.openmrs.User;
-import org.openmrs.event.Event;
-import org.openmrs.event.EventListener;
-import org.openmrs.module.emrapi.EmrApiConstants;
+import org.openmrs.api.context.Context;
+import org.openmrs.test.jupiter.BaseModuleContextSensitiveTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.event.ApplicationEvents;
+import org.springframework.test.context.event.RecordApplicationEvents;
 
-public class ApplicationEventServiceTest {
+@RecordApplicationEvents
+public class ApplicationEventServiceTest extends BaseModuleContextSensitiveTest {
 	
-	private MockEmrEventListener listener;
-	
-	private class MockEmrEventListener implements EventListener {
-		
-		//Expects one event to get fired
-		CountDownLatch latch = new CountDownLatch(1);
-		
-		String patientUuid;
-		
-		String userUuid;
-		
-		/**
-		 * Waits for events for at most 2 seconds.
-		 * 
-		 * @throws InterruptedException
-		 */
-		public void waitForEvents() throws InterruptedException {
-			latch.await(2, TimeUnit.SECONDS);
-		}
-		
-		@Override
-		public void onMessage(Message message) {
-			try {
-				MapMessage mapMessage = (MapMessage) message;
-				patientUuid = mapMessage.getString(EmrApiConstants.EVENT_KEY_PATIENT_UUID);
-				userUuid = mapMessage.getString(EmrApiConstants.EVENT_KEY_USER_UUID);
-				//signal that the listener is done
-				latch.countDown();
-			}
-			catch (Exception e) {}
-		}
-	}
-	
-	@Before
-	public void setup() {
-		listener = new MockEmrEventListener();
-		Event.subscribe(EmrApiConstants.EVENT_TOPIC_NAME_PATIENT_VIEWED, listener);
-	}
-	
-	@After
-	public void tearDown() {
-		Event.unsubscribe(EmrApiConstants.EVENT_TOPIC_NAME_PATIENT_VIEWED, listener);
-	}
-	
+	@Autowired
+	private ApplicationEvents applicationEvents;
+
 	/**
 	 * @verifies publish the patient viewed event
 	 * @see ApplicationEventService#patientViewed(org.openmrs.Patient, org.openmrs.User)
 	 */
 	@Test
-	public void patientViewed_shouldPublishThePatientViewedEvent() throws Exception {
-		Patient patient = new Patient();
-		User user = new User();
-		new ApplicationEventServiceImpl().patientViewed(patient, user);
+	public void patientViewed_shouldPublishThePatientViewedEvent() {
+		Patient patient = Context.getPatientService().getPatient(2);
+		User user = Context.getUserService().getUser(502);
 		
-		listener.waitForEvents();
-		assertEquals(patient.getUuid(), listener.patientUuid);
-		assertEquals(user.getUuid(), listener.userUuid);
+		Context.getService(ApplicationEventService.class).patientViewed(patient, user);
+		
+		List<PatientViewedEvent> events = applicationEvents.stream(PatientViewedEvent.class).collect(Collectors.toList());
+		assertEquals(1, events.size());
+		assertEquals(patient.getUuid(), events.get(0).getPatientUuid());
+		assertEquals(user.getUuid(), events.get(0).getUserUuid());
 	}
 }

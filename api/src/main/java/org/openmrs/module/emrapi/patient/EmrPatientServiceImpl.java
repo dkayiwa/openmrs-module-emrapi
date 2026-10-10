@@ -10,7 +10,6 @@
 package org.openmrs.module.emrapi.patient;
 
 import lombok.Setter;
-import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifierType;
@@ -19,7 +18,6 @@ import org.openmrs.api.APIException;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.emrapi.EmrApiProperties;
-import org.openmrs.module.emrapi.adt.AdtService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,16 +33,6 @@ public class EmrPatientServiceImpl extends BaseOpenmrsService implements EmrPati
 	private EmrApiProperties emrApiProperties;
 	
 	private PatientService patientService;
-	
-	private AdtService adtService;
-	
-	@Override
-	public List<Patient> findPatients(String query, Location checkedInAt, Integer start, Integer length) {
-		if (checkedInAt != null) {
-			checkedInAt = adtService.getLocationThatSupportsVisits(checkedInAt);
-		}
-		return dao.findPatients(query, checkedInAt, start, length);
-	}
 	
 	@Override
 	public Patient findPatientByPrimaryId(String primaryId) {

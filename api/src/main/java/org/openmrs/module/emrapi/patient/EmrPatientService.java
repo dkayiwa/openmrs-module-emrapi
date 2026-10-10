@@ -9,7 +9,6 @@
  */
 package org.openmrs.module.emrapi.patient;
 
-import org.openmrs.Location;
 import org.openmrs.Obs;
 import org.openmrs.Patient;
 import org.openmrs.Visit;
@@ -22,8 +21,6 @@ import java.util.Map;
  * Public API for patient EMR-related functionality.
  */
 public interface EmrPatientService {
-	
-	List<Patient> findPatients(String query, Location checkedInAt, Integer start, Integer length);
 	
 	Patient findPatientByPrimaryId(String primaryId);
 	

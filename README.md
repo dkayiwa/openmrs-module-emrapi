@@ -9,11 +9,10 @@ Higher-level APIs to support building EMR functionality in OpenMRS, to supplemen
 
 ## Required core version
 
-* 2.8.0
+* 3.0.0
 
 ## Required modules
 
-* event
 * metadatamapping
 * webservices.rest
 
@@ -34,7 +33,7 @@ Higher-level APIs to support building EMR functionality in OpenMRS, to supplemen
 * Creates metadata source, metadata mappings, and metadata sets that are required for the configuration
 * Creates an "Unknown Provider" provider if it does not exist
 * Sets default visit assignment handler via global property
-* Sets up the patient viewed event listener subscription
+* Gives the patient viewed event listener the daemon token it updates the last viewed patients with
 * Ensures the person image folder exists
 
 # REST API
@@ -178,7 +177,7 @@ The configuration needed to set this up would be to map 2 concepts as follows:
 
 ## event
 
-* Basic interface and implementation for publishing events with the event module whenever a user views a patient
+* Basic interface and implementation for publishing a PatientViewedEvent through core's EventPublisher whenever a user views a patient
 * Event listener on patient view events to track in the user's property of emrapi.lastViewedPatientIds
 
 ## exitfromcare
@@ -198,7 +197,7 @@ The configuration needed to set this up would be to map 2 concepts as follows:
 
 * PatientDomainWrapper - convenience methods around Patient and related tables, including primary identifier, telephone number, unknown patient, and test patient 
 * EmrPatientProfileService - allows associating a patient with a PersonImage
-* EmrPatientService - methods to find patients by visit location or primary identifier
+* EmrPatientService - methods to find a patient by primary identifier, and to get a patient's visits and their visit note observations
 * (reporting module) definitions and evaluators for getting patient Primary Identifier
 
 ## person

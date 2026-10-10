@@ -13,10 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.jms.MapMessage;
-import javax.jms.Message;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
@@ -25,65 +22,74 @@ import org.openmrs.api.APIException;
 import org.openmrs.api.UserService;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.context.Daemon;
-import org.openmrs.event.EventListener;
 import org.openmrs.module.DaemonToken;
 import org.openmrs.module.emrapi.EmrApiConstants;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.utils.GeneralUtils;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
 
 /**
- * Listens for patient viewed events, the patient found in the message payload gets added to the
- * last viewed patients user property of the specified user,
+ * Listens for {@link PatientViewedEvent}s, the viewed patient gets added to the last viewed patients
+ * user property of the user who viewed them.
  */
-public class PatientViewedEventListener implements EventListener {
+@Component
+public class PatientViewedEventListener {
 	
 	protected final Log log = LogFactory.getLog(getClass());
 	
-	private DaemonToken daemonToken;
+	private volatile DaemonToken daemonToken;
 	
-	public PatientViewedEventListener(DaemonToken token) {
-		daemonToken = token;
+	/**
+	 * Called by {@link org.openmrs.module.emrapi.EmrApiActivator} with the token core passes the module.
+	 */
+	public void setDaemonToken(DaemonToken daemonToken) {
+		this.daemonToken = daemonToken;
 	}
 	
 	/**
-	 * @see EventListener#onMessage(javax.jms.Message)
-	 * @param message
+	 * Updates the user property in a daemon thread, so that viewing a patient neither waits for the
+	 * update nor fails because of it.
 	 */
-	@Override
-	public void onMessage(final Message message) {
-		Daemon.runInDaemonThread(new Runnable() {
-			
-			@Override
-			public void run() {
+	@EventListener
+	public void onPatientViewed(PatientViewedEvent event) {
+		if (daemonToken == null) {
+			log.warn("Not updating the last viewed patients of user " + event.getUserUuid()
+			        + " because the emrapi module has not been started");
+			return;
+		}
+		try {
+			Daemon.runInDaemonThreadWithoutResult(() -> {
 				try {
-					processMessage(message);
+					processEvent(event);
 				}
 				catch (Exception e) {
 					log.error("Failed to update the user's last viewed patients property", e);
 				}
-			}
-		}, daemonToken);
+			}, daemonToken);
+		}
+		catch (Exception e) {
+			log.error("Failed to start updating the user's last viewed patients property", e);
+		}
 	}
 	
 	/**
-	 * Processes the specified jms message
+	 * Processes the specified patient viewed event
 	 * 
 	 * @should add the patient to the last viewed user property
 	 * @should remove the first patient and add the new one to the start if the list is full
 	 * @should not add a duplicate and should move the existing patient to the start
 	 * @should not remove any patient if a duplicate is added to a full list
 	 */
-	public void processMessage(Message message) throws Exception {
-		MapMessage mapMessage = (MapMessage) message;
-		String patientUuid = mapMessage.getString(EmrApiConstants.EVENT_KEY_PATIENT_UUID);
-		String userUuid = mapMessage.getString(EmrApiConstants.EVENT_KEY_USER_UUID);
+	public void processEvent(PatientViewedEvent event) {
+		String patientUuid = event.getPatientUuid();
 		Patient patientToAdd = Context.getPatientService().getPatientByUuid(patientUuid);
 		if (patientToAdd == null || patientToAdd.getId() == null) {
 			throw new APIException("failed to find a patient with uuid:" + patientUuid + " or the patient is not yet saved");
 		}
 		
 		UserService userService = Context.getUserService();
-		User user = userService.getUserByUuid(userUuid);
+		User user = userService.getUserByUuid(event.getUserUuid());
 		if (user != null) {
 			EmrApiProperties emrProperties = Context.getRegisteredComponents(EmrApiProperties.class).iterator().next();
 			Integer limit = emrProperties.getLastViewedPatientSizeLimit();
